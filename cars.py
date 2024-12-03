@@ -90,8 +90,85 @@ class Car:
             }
         }
 
+    def demonstrate_items(self):
+        """
+        Demonstrates the items() method on car_data dictionary.
+        Shows how to access  keys and values simultaneously at each level.
+        """
+        print("\nDemonstrating items() method:")
+        print("============================")
+        
+        # First level: Manufacturers and their models
+        for manufacturer, models in self.car_data.items():
+            print(f"\nManufacturer: {manufacturer}")
+            # Second level: Models and their specifications
+            for model, specs in models.items():
+                print(f"\n  Model: {model}")
+                # Third level: Individual specifications
+                for spec_name, spec_value in specs.items():
+                    if isinstance(spec_value, list):
+                        print(f"    {spec_name}: {', '.join(map(str, spec_value))}")
+                    else:
+                        print(f"    {spec_name}: {spec_value}")
+
+    def demonstrate_keys(self):
+        """
+        Demonstrates the keys() method on our nested dictionary.
+        Shows available manufacturers, models, and specification categories.
+        """
+        print("\nDemonstrating keys() method:")
+        print("===========================")
+        
+        # Get all manufacturer names
+        manufacturers = self.car_data.keys()
+        print(f"Available manufacturers: {', '.join(manufacturers)}")
+        
+        # Get models for each manufacturer
+        for manufacturer in manufacturers:
+            models = self.car_data[manufacturer].keys()
+            print(f"\n{manufacturer} models: {', '.join(models)}")
+            
+            # Get specification categories for first model
+            first_model = list(models)[0]
+            specs = self.car_data[manufacturer][first_model].keys()
+            print(f"Specification categories for {first_model}: {', '.join(specs)}")
+
+    def demonstrate_values(self):
+        """
+        Demonstrates the values() method on our nested dictionary.
+        Shows the actual data without the associated keys.
+        """
+        print("\nDemonstrating values() method:")
+        print("============================")
+        
+        # Show registration numbers for all models
+        print("\nRegistration numbers for all models:")
+        for manufacturer in self.car_data.values():
+            for model, specs in manufacturer.items():
+                print(f"  {model}: {specs['registrations']} registrations")
+        
+        # Show all available engine options across the range
+        all_engines = set()
+        for manufacturer in self.car_data.values():
+            for specs in manufacturer.values():
+                all_engines.update(specs['engine_options'])
+        print("\nAll available engine options:")
+        for engine in sorted(all_engines):
+            print(f"  - {engine}")
+
 def main():
+    """
+    Main function to demonstrate dictionary operations on UK car registration data
+    """
+    print("UK Car Registration Data Analysis")
+    print("================================")
+    
     car_system = Car()
+    
+    # Demonstrate each dictionary method
+    car_system.demonstrate_items()
+    car_system.demonstrate_keys()
+    car_system.demonstrate_values()
 
 if __name__ == "__main__":
     main()
