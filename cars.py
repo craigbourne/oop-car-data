@@ -1,7 +1,12 @@
+class CarDataError(Exception):
+    """Custom exception for car data related errors"""
+    pass
+
 class Car:
     def __init__(self):
         # Initialise Car class with with the top 10 registered cars in the UK for 2024: https://www.rac.co.uk/drive/advice/buying-and-selling-guides/the-top-10-most-popular-cars-in-the-uk/
-        self.car_data = {
+        try:
+          self.car_data = {
             "Ford": {
                 "Puma": {
                     "registrations": 42465,
@@ -89,14 +94,51 @@ class Car:
                 }
             }
         }
+          self._validate_data()
+        except Exception as e:
+            raise CarDataError(f"Error initialising car data: {str(e)}")
+    def _validate_data(self):
+
+      # Validates the car data structure and content
+      # Raises CarDataError if data is invalid
+
+      required_specs = {'registrations', 'engine_options', 'transmission', 'fuel_type', 'body_style'}
+      
+      for manufacturer, models in self.car_data.items():
+          if not isinstance(manufacturer, str):
+              raise CarDataError(f"Invalid manufacturer name: {manufacturer}")
+
+          for model, specs in models.items():
+              if not isinstance(model, str):
+                  raise CarDataError(f"Invalid model name: {model}")
+
+              # Check for required specification fields
+              missing_specs = required_specs - specs.keys()
+              if missing_specs:
+                  raise CarDataError(
+                      f"Missing specifications for {manufacturer} {model}: {missing_specs}"
+                  )
+
+              # Validate registration numbers
+              if not isinstance(specs['registrations'], int):
+                  raise CarDataError(
+                      f"Invalid registration number for {manufacturer} {model}"
+                  )
+
+              # Validate list fields
+              list_fields = ['engine_options', 'transmission', 'fuel_type']
+              for field in list_fields:
+                  if not isinstance(specs[field], list):
+                      raise CarDataError(
+                          f"Invalid {field} data for {manufacturer} {model}"
+                      )
 
     def demonstrate_items(self):
         """
         Demonstrates the items() method on car_data dictionary.
         Shows how to access  keys and values simultaneously at each level.
         """
-        print("\nDemonstrating items() method:")
-        print("============================")
+        print("\n======================= Demonstrating items() method =======================")
         
         # First level: Manufacturers and their models
         for manufacturer, models in self.car_data.items():
@@ -116,18 +158,18 @@ class Car:
         Demonstrates the keys() method on our nested dictionary.
         Shows available manufacturers, models, and specification categories.
         """
-        print("\nDemonstrating keys() method:")
-        print("===========================")
-        
+        print("\n======================= Demonstrating keys() method =======================")
+
+
         # Get all manufacturer names
         manufacturers = self.car_data.keys()
         print(f"Available manufacturers: {', '.join(manufacturers)}")
-        
+
         # Get models for each manufacturer
         for manufacturer in manufacturers:
             models = self.car_data[manufacturer].keys()
             print(f"\n{manufacturer} models: {', '.join(models)}")
-            
+
             # Get specification categories for first model
             first_model = list(models)[0]
             specs = self.car_data[manufacturer][first_model].keys()
@@ -138,15 +180,14 @@ class Car:
         Demonstrates the values() method on our nested dictionary.
         Shows the actual data without the associated keys.
         """
-        print("\nDemonstrating values() method:")
-        print("============================")
-        
+        print("\n======================= Demonstrating values() method =======================")
+
         # Show registration numbers for all models
         print("\nRegistration numbers for all models:")
         for manufacturer in self.car_data.values():
             for model, specs in manufacturer.items():
                 print(f"  {model}: {specs['registrations']} registrations")
-        
+
         # Show all available engine options across the range
         all_engines = set()
         for manufacturer in self.car_data.values():
@@ -157,18 +198,20 @@ class Car:
             print(f"  - {engine}")
 
 def main():
-    """
-    Main function to demonstrate dictionary operations on UK car registration data
-    """
-    print("UK Car Registration Data Analysis")
-    print("================================")
-    
-    car_system = Car()
-    
-    # Demonstrate each dictionary method
-    car_system.demonstrate_items()
-    car_system.demonstrate_keys()
-    car_system.demonstrate_values()
+    # Main function to demonstrate dictionary operations on UK car registration data
+    try:
+        print("UK Car Registration Data Analysis")
+
+        car_system = Car()
+
+        car_system.demonstrate_items()
+        car_system.demonstrate_keys()
+        car_system.demonstrate_values()
+
+    except CarDataError as e:
+        print(f"Error in car data: {str(e)}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {str(e)}")
 
 if __name__ == "__main__":
     main()
